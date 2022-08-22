@@ -1,9 +1,13 @@
 package com.example.tanmeyah.employee.service;
 
+import com.example.tanmeyah.employee.LoginDTO;
 import com.example.tanmeyah.employee.domain.Employee;
 import com.example.tanmeyah.employee.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import netscape.javascript.JSObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -64,4 +69,22 @@ public class EmployeeService implements UserDetailsService {
     }
 
 
+    public ResponseEntity<?> login(LoginDTO loginDTO) throws JSONException {
+        JSONObject json= new JSONObject();
+        Optional<Employee> employeeOptional= employeeRepository.findEmployeeByEmail(loginDTO.getEmail());
+        if(employeeOptional.get()==null){
+            json.put("email:","Incorrect email!");
+        }else{
+            json.put("email:",employeeOptional.get().getEmail());
+        }
+        if(employeeOptional.get()!=null){
+            if(passwordEncoder.matches(loginDTO.getPassword(), employeeOptional.get().getPassword())){
+                json.put("password:",loginDTO.getPassword());
+            }else{
+                json.put("password:","Incorrect password!");
+            }
+            json.put("role:",employeeOptional.get().getRole().name());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(json);
+    }
 }

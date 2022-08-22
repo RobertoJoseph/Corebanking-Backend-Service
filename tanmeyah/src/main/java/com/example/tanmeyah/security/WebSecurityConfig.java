@@ -28,10 +28,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.
-            csrf().disable().
-            authorizeRequests()
-            .antMatchers("/tanmeyah/branch/**").hasRole(Role.ADMIN.name())
+        http
+                .cors().disable().authorizeRequests()
+                .and().csrf().disable().authorizeRequests()
+//            authorizeRequests()
+            .antMatchers("/tanmeyah/branch/**").permitAll()
 //            .antMatchers("/").permitAll()
 //            .antMatchers(HttpMethod.GET, "/tanmeyah/branch/**")
 //            .hasAuthority(BRANCH_READ.name())
@@ -41,7 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //            .permitAll()
             .anyRequest().authenticated()
             .and()
-            .httpBasic();
+                .formLogin();
     }
 
     @Override
