@@ -2,7 +2,9 @@ package com.example.tanmeyah.security;
 
 import com.example.tanmeyah.employee.service.EmployeeService;
 import lombok.AllArgsConstructor;
+import org.apache.catalina.filters.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +14,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.example.tanmeyah.security.ApplicationUserPermission.*;
 
@@ -29,10 +37,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().disable().authorizeRequests()
-                .and().csrf().disable().authorizeRequests()
+
+            .csrf().disable().authorizeRequests()
 //            authorizeRequests()
-            .antMatchers("/tanmeyah/branch/**").permitAll()
+            .antMatchers("/tanmeyah/**").permitAll()
+
+
 //            .antMatchers("/").permitAll()
 //            .antMatchers(HttpMethod.GET, "/tanmeyah/branch/**")
 //            .hasAuthority(BRANCH_READ.name())
@@ -42,7 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //            .permitAll()
             .anyRequest().authenticated()
             .and()
-                .formLogin();
+            .formLogin();
+//            .and().c();
     }
 
     @Override
@@ -57,5 +68,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         provider.setUserDetailsService(employeeService);
         return provider;
     }
+
 
 }

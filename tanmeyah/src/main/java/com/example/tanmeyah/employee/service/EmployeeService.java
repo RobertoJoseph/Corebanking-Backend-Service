@@ -1,8 +1,10 @@
 package com.example.tanmeyah.employee.service;
 
+import com.example.tanmeyah.branch.domain.Branch;
 import com.example.tanmeyah.employee.LoginDTO;
 import com.example.tanmeyah.employee.domain.Employee;
 import com.example.tanmeyah.employee.repository.EmployeeRepository;
+import com.example.tanmeyah.exception.NotFoundException;
 import lombok.AllArgsConstructor;
 import netscape.javascript.JSObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -70,21 +74,22 @@ public class EmployeeService implements UserDetailsService {
 
 
     public ResponseEntity<?> login(LoginDTO loginDTO) throws JSONException {
-        JSONObject json= new JSONObject();
-        Optional<Employee> employeeOptional= employeeRepository.findEmployeeByEmail(loginDTO.getEmail());
-        if(employeeOptional.get()==null){
-            json.put("email:","Incorrect email!");
-        }else{
-            json.put("email:",employeeOptional.get().getEmail());
-        }
-        if(employeeOptional.get()!=null){
-            if(passwordEncoder.matches(loginDTO.getPassword(), employeeOptional.get().getPassword())){
-                json.put("password:",loginDTO.getPassword());
-            }else{
-                json.put("password:","Incorrect password!");
-            }
-            json.put("role:",employeeOptional.get().getRole().name());
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(json);
+//
+        Map<String,String> mp = new HashMap<>();
+        System.out.println("HAHAHAHA");
+        System.out.println(loginDTO.getEmail());
+        System.out.println(loginDTO.getPassword());
+//        Optional<Employee> employeeOptional= employeeRepository.findEmployeeByEmail(loginDTO.getEmail());
+        Optional<Employee> employee = Optional.ofNullable(employeeRepository.findEmployeeByEmail(loginDTO.getEmail()).
+            orElseThrow(() -> new NotFoundException(String.format("Employee with Email %s not found", loginDTO.getEmail()))));
+
+        if(passwordEncoder.matches(loginDTO.getPassword(),employee.get().getPassword()))
+            mp.put("found","true");
+        else
+            mp.put("found","false");
+
+        mp.put("role",employee.get().getRole().name());
+//
+        return ResponseEntity.status(HttpStatus.OK).body(mp);
     }
 }

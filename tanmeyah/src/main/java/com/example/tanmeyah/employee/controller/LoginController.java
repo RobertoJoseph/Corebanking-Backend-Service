@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("login")
+@RequestMapping("tanmeyah/login")
 @AllArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class LoginController {

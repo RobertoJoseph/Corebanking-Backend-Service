@@ -4,9 +4,13 @@
   "private": true,
   "proxy": "https://memories-project-part4.herokuapp.com/",
   "dependencies": {
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
     "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.10.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
