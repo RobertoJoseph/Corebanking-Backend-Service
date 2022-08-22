@@ -27,10 +27,10 @@ export default function Auth() {
       );
       if (response.data.role === "ADMIN") {
         history.push("/admin");
-        
+
       }
     } catch (err) {
-      console.log(err.message);
+      console.log(err);
     }
   };
   return (
