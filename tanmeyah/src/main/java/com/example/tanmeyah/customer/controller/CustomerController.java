@@ -30,5 +30,9 @@ public class CustomerController {
     public ResponseEntity<?> getCustomer(@RequestBody String nationalId){
         return customerService.getCustomerByNationalId(nationalId);
     }
+    @PutMapping
+    public ResponseEntity<?> addCommissionToCustomer(@RequestBody CustomerDTO customerDTO){
+        return customerService.addCommissionToCustomer(customerDTO);
+    }
 
 }

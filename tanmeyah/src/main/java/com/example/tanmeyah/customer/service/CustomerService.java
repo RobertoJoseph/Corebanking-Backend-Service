@@ -64,4 +64,8 @@ public class CustomerService {
         return ResponseEntity.status(HttpStatus.OK).body("Added ");
 
     }
+
+    public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
+//        if(customerDTO.getCommissionAmount()==customerDTO.getProductType().get)
+    }
 }
