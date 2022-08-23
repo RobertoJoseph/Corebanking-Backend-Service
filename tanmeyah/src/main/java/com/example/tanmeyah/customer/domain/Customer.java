@@ -23,17 +23,13 @@ public class Customer {
     public Customer(String firstName, String lastName,
                     String phoneNumber,
                     String nationalId,
-                    boolean isCommissionPaid,
-                    LocalDate commissionPaidDate,
-                    double commissionAmount
+                    boolean isCommissionPaid
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.nationalId = nationalId;
         this.isCommissionPaid = isCommissionPaid;
-        this.commissionPaidDate = commissionPaidDate;
-        this.commissionAmount=commissionAmount;
 
     }
 
@@ -84,18 +80,6 @@ public class Customer {
         message = "Invalid National ID number"
     )
     private String nationalId;
-
-
-    @Column(
-        name = "start_date"
-    )
-    private LocalDate startDate;
-
-    @Column(
-        name = "end_date"
-    )
-    private LocalDate endDate;
-
 
     @Column(
         name = "isCommissionPaid")

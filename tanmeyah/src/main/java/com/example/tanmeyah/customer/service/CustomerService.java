@@ -9,6 +9,7 @@ import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.facility.FacilityRepository;
 import com.example.tanmeyah.product.Product;
 import com.example.tanmeyah.product.ProductRepository;
+import com.example.tanmeyah.product.ProductType;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @Service
 @AllArgsConstructor
@@ -40,32 +43,55 @@ public class CustomerService {
     public ResponseEntity<?> getCustomerByNationalId(String nationalId) {
         Optional<Customer> customer = customerRepository.findCustomerByNationalId(nationalId);
         if (customer.get() == null)
-            return ResponseEntity.status(HttpStatus.OK).body("Cannot find this customer");
+            return ResponseEntity.status(OK).body("Cannot find this customer");
         CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
-        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+        return ResponseEntity.status(OK).body(customerDTO);
     }
 
 
     @Transactional
     public ResponseEntity<?> addCustomer(CustomerDTO customerDTO) throws JSONException {
         Optional<Branch> branch = branchRepository.findBranchById(customerDTO.getBranchId());
-        System.out.println(customerDTO.getIsCommissionPaid());
+        if (branch.get() == null)
+            return ResponseEntity.status(OK).body("Incorrect Branch Id");
+//        System.out.println(customerDTO.getIsCommissionPaid());
         Customer c = new Customer(
-                customerDTO.getFirstName(),
-                customerDTO.getLastName(),
-                customerDTO.getPhoneNumber(),
-                customerDTO.getNationalId(),
-                false,
-                LocalDate.now(),
-                customerDTO.getCommissionAmount()
-        );
+            customerDTO.getFirstName(),
+            customerDTO.getLastName(),
+            customerDTO.getPhoneNumber(),
+            customerDTO.getNationalId(),
+            false
+            );
+        branch.get().addCustomer(c);
         branchRepository.save(branch.get());
         //TODO JSON OBJECT CREATION
-        return ResponseEntity.status(HttpStatus.OK).body("Added ");
+        return ResponseEntity.status(OK).body("Added");
 
     }
 
-//    public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
+    //    public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
 ////        if(customerDTO.getCommissionAmount()==customerDTO.getProductType().get)
 //    }
+    public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
+        if (customerDTO.getCommissionAmount() == customerDTO.getProductType().getCommission()) {
+            Product product = new Product(customerDTO.getProductType());
+            Optional<Customer> customerOptional = customerRepository
+                .findCustomerByNationalId(customerDTO.getNationalId());
+            if (customerOptional.get() == null)
+                return ResponseEntity.status(OK).body("Enter a correct National ID");
+            customerOptional.ifPresent(customer -> {
+                customer.setCommissionPaid(true);
+                customer.setCommissionAmount(customerDTO.getCommissionAmount());
+                customer.setCommissionPaidDate(LocalDate.now());
+                product.addCustomer(customer);
+                productRepository.save(product);
+
+            });
+            CustomerDTO ret = mapper.map(customerOptional.get(), CustomerDTO.class);
+            return ResponseEntity.status(OK).body(ret);
+        } else {
+            return ResponseEntity.status(OK)
+                .body("Commission amount is not compatible with this product type");
+        }
+    }
 }
