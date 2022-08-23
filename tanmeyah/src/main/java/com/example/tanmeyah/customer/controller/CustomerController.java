@@ -32,7 +32,7 @@ public class CustomerController {
 //    }
     @GetMapping
     public ResponseEntity<?> getCustomer(@RequestBody String nationalId){
-        return customerService.getCustomerById(nationalId);
+        return customerService.getCustomerByNationalId(nationalId);
     }
     @PutMapping
     public ResponseEntity<?> addCommissionToCustomer(@RequestBody CustomerDTO customerDTO){
