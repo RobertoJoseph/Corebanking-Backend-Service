@@ -5,10 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class LoanRequestBody {
-    private long customerId;
+public class LoanDTO {
+    private String customerNationalId;
     private long facilityId;
     private long productId;
     private double amount;
     private int repayments;
+    private String grantedNationalId;
 }

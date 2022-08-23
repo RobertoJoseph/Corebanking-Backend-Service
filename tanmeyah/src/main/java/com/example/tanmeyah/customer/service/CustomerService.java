@@ -65,7 +65,7 @@ public class CustomerService {
 
     }
 
-    public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
-//        if(customerDTO.getCommissionAmount()==customerDTO.getProductType().get)
-    }
+//    public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
+////        if(customerDTO.getCommissionAmount()==customerDTO.getProductType().get)
+//    }
 }
