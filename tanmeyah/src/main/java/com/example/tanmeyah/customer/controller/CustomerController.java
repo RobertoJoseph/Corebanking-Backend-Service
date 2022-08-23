@@ -21,7 +21,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping
-    public ResponseEntity<?> createCustomer(@RequestBody CustomerDTO customer) throws JSONException {
+    public ResponseEntity<?> addCustomer(@RequestBody CustomerDTO customer) throws JSONException {
 
         return customerService.addCustomer(customer);
     }
@@ -30,9 +30,9 @@ public class CustomerController {
 //    public ResponseEntity<CustomerDTO> getCustomer(@RequestBody Long id) throws SQLException {
 //        return customerService.getCustomerById(id);
 //    }
-    @PostMapping("test")
-    public ResponseEntity<CustomerDTO> getCustomer(@RequestBody NationalIdDto nationalIdDto){
-        return customerService.getCustomerById(nationalIdDto.getNationalId());
+    @GetMapping
+    public ResponseEntity<?> getCustomer(@RequestBody String nationalId){
+        return customerService.getCustomerById(nationalId);
     }
 
 }

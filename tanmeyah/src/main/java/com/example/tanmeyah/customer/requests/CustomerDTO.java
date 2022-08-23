@@ -20,7 +20,6 @@ import java.util.List;
 public class CustomerDTO {
     private String firstName;
     private String lastName;
-    private String email;
     private String phoneNumber;
     private String nationalId;
     private String facilityName;
@@ -30,7 +29,7 @@ public class CustomerDTO {
     private LocalDate commissionPaidDate;
     private List<Loan> loansOfGrantedCustomer;
     private ProductType productType;
-    private double requestedAmount;
+    private double commissionAmount;
 
 
 }

@@ -32,17 +32,18 @@ public class CustomerService {
     private ModelMapper mapper;
 
 
-//    public ResponseEntity<CustomerDTO> getCustomerById(Long id) {
+    //    public ResponseEntity<CustomerDTO> getCustomerById(Long id) {
 //        Optional<Customer> customer = customerRepository.findById(id);
 //        CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
 //        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
 //    }
-public ResponseEntity<CustomerDTO> getCustomerById(String nationalId) {
-    Optional<Customer> customer = customerRepository.findCustomerByNationalId(nationalId);
-    customer.orElseThrow(()-> new RuntimeException("Cannot Find Customer"));
-    CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
-    return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
-}
+    public ResponseEntity<?> getCustomerById(String nationalId) {
+        Optional<Customer> customer = customerRepository.findCustomerByNationalId(nationalId);
+        if (customer.get() == null)
+            return ResponseEntity.status(HttpStatus.OK).body("Cannot find this customer");
+        CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+    }
 
 
     @Transactional
@@ -50,20 +51,14 @@ public ResponseEntity<CustomerDTO> getCustomerById(String nationalId) {
         Optional<Branch> branch = branchRepository.findBranchById(customerDTO.getBranchId());
         System.out.println(customerDTO.getIsCommissionPaid());
         Customer c = new Customer(
-            customerDTO.getFirstName(),
-            customerDTO.getLastName(),
-            customerDTO.getEmail(),
-            customerDTO.getPhoneNumber(),
-            customerDTO.getNationalId(),
-            customerDTO.getIsCommissionPaid(),
-            LocalDate.now()
+                customerDTO.getFirstName(),
+                customerDTO.getLastName(),
+                customerDTO.getPhoneNumber(),
+                customerDTO.getNationalId(),
+                true,
+                LocalDate.now(),
+                customerDTO.getCommissionAmount()
         );
-        Facility facility = new Facility(customerDTO.getFacilityName(), c);
-        Product p = new Product(customerDTO.getProductType());
-        facilityRepository.save(facility);
-        branch.get().addCustomer(c);
-        p.addCustomer(c);
-        productRepository.save(p);
         branchRepository.save(branch.get());
         //TODO JSON OBJECT CREATION
         return ResponseEntity.status(HttpStatus.OK).body("Added ");

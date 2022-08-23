@@ -20,19 +20,20 @@ import java.util.List;
 @Getter
 @Setter
 public class Customer {
-    public Customer(String firstName, String lastName, String email,
+    public Customer(String firstName, String lastName,
                     String phoneNumber,
                     String nationalId,
                     boolean isCommissionPaid,
-                    LocalDate commissionPaidDate
+                    LocalDate commissionPaidDate,
+                    double commissionAmount
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.email = email;
         this.phoneNumber = phoneNumber;
         this.nationalId = nationalId;
         this.isCommissionPaid = isCommissionPaid;
         this.commissionPaidDate = commissionPaidDate;
+        this.commissionAmount=commissionAmount;
 
     }
 
@@ -66,12 +67,6 @@ public class Customer {
 
     )
     private String lastName;
-    @Column(
-        name = "email",
-        nullable = false,
-        unique = true
-    )
-    private String email;
 
     @Column(
         name = "phone_number",
@@ -148,6 +143,8 @@ public class Customer {
     )
     private List<Loan> loansOfGrantedCustomer = new LinkedList<>();
     private double requestedAmount;
+    @Column(name = "commission_amount")
+    private double commissionAmount;
 
     @Transactional
 //    public void addLoanToGrantedCustomer(Loan loan) {
