@@ -76,7 +76,7 @@ public class EmployeeService implements UserDetailsService {
     public ResponseEntity<?> login(LoginDTO loginDTO) throws JSONException {
 //
         Map<String,String> mp = new HashMap<>();
-        System.out.println("HAHAHAHA");
+        System.out.println("Fuck Rubyy");
         System.out.println(loginDTO.getEmail());
         System.out.println(loginDTO.getPassword());
 //        Optional<Employee> employeeOptional= employeeRepository.findEmployeeByEmail(loginDTO.getEmail());
