@@ -1,7 +1,5 @@
 package com.example.tanmeyah.customer.controller;
 
-import com.example.tanmeyah.customer.NationalIdDto;
-import com.example.tanmeyah.customer.domain.Customer;
 import com.example.tanmeyah.customer.repository.CustomerRepository;
 import com.example.tanmeyah.customer.requests.CustomerDTO;
 import com.example.tanmeyah.customer.service.CustomerService;
@@ -9,8 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.SQLException;
 
 @RestController
 @RequestMapping("tanmeyah/customer")
@@ -32,7 +28,7 @@ public class CustomerController {
 //    }
     @GetMapping
     public ResponseEntity<?> getCustomer(@RequestBody String nationalId){
-        return customerService.getCustomerById(nationalId);
+        return customerService.getCustomerByNationalId(nationalId);
     }
 
 }

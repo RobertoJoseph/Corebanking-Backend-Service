@@ -37,7 +37,7 @@ public class CustomerService {
 //        CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
 //        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
 //    }
-    public ResponseEntity<?> getCustomerById(String nationalId) {
+    public ResponseEntity<?> getCustomerByNationalId(String nationalId) {
         Optional<Customer> customer = customerRepository.findCustomerByNationalId(nationalId);
         if (customer.get() == null)
             return ResponseEntity.status(HttpStatus.OK).body("Cannot find this customer");
@@ -55,7 +55,7 @@ public class CustomerService {
                 customerDTO.getLastName(),
                 customerDTO.getPhoneNumber(),
                 customerDTO.getNationalId(),
-                true,
+                false,
                 LocalDate.now(),
                 customerDTO.getCommissionAmount()
         );
