@@ -1,5 +1,7 @@
 package com.example.tanmeyah.customer.controller;
 
+import com.example.tanmeyah.customer.NationalIdDto;
+import com.example.tanmeyah.customer.domain.Customer;
 import com.example.tanmeyah.customer.repository.CustomerRepository;
 import com.example.tanmeyah.customer.requests.CustomerDTO;
 import com.example.tanmeyah.customer.service.CustomerService;
@@ -11,21 +13,26 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping("customer")
+@RequestMapping("tanmeyah/customer")
 @AllArgsConstructor
-
+@CrossOrigin(origins = "http://localhost:3000")
 public class CustomerController {
     private final CustomerRepository customerRepository;
     private final CustomerService customerService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<?> createCustomer(@RequestBody CustomerDTO customer) throws JSONException {
 
         return customerService.addCustomer(customer);
     }
 
-    @GetMapping
-    public ResponseEntity<CustomerDTO> getCustomer(@RequestBody Long id) throws SQLException {
-        return customerService.getCustomerById(id);
+//    @GetMapping
+//    public ResponseEntity<CustomerDTO> getCustomer(@RequestBody Long id) throws SQLException {
+//        return customerService.getCustomerById(id);
+//    }
+    @PostMapping("test")
+    public ResponseEntity<CustomerDTO> getCustomer(@RequestBody NationalIdDto nationalIdDto){
+        return customerService.getCustomerById(nationalIdDto.getNationalId());
     }
+
 }

@@ -24,8 +24,7 @@ public class Customer {
                     String phoneNumber,
                     String nationalId,
                     boolean isCommissionPaid,
-                    LocalDate commissionPaidDate,
-                    double requestedAmount
+                    LocalDate commissionPaidDate
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -34,7 +33,6 @@ public class Customer {
         this.nationalId = nationalId;
         this.isCommissionPaid = isCommissionPaid;
         this.commissionPaidDate = commissionPaidDate;
-        this.requestedAmount = requestedAmount;
 
     }
 

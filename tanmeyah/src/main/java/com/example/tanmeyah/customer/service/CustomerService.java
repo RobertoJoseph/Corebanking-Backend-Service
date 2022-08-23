@@ -32,11 +32,17 @@ public class CustomerService {
     private ModelMapper mapper;
 
 
-    public ResponseEntity<CustomerDTO> getCustomerById(Long id) {
-        Optional<Customer> customer = customerRepository.findById(id);
-        CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
-        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
-    }
+//    public ResponseEntity<CustomerDTO> getCustomerById(Long id) {
+//        Optional<Customer> customer = customerRepository.findById(id);
+//        CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
+//        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+//    }
+public ResponseEntity<CustomerDTO> getCustomerById(String nationalId) {
+    Optional<Customer> customer = customerRepository.findCustomerByNationalId(nationalId);
+    customer.orElseThrow(()-> new RuntimeException("Cannot Find Customer"));
+    CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
+    return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+}
 
 
     @Transactional
@@ -50,8 +56,7 @@ public class CustomerService {
             customerDTO.getPhoneNumber(),
             customerDTO.getNationalId(),
             customerDTO.getIsCommissionPaid(),
-            LocalDate.now(),
-            customerDTO.getRequestedAmount()
+            LocalDate.now()
         );
         Facility facility = new Facility(customerDTO.getFacilityName(), c);
         Product p = new Product(customerDTO.getProductType());
