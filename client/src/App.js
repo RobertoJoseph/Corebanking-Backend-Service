@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import Admin from "./components/Admin";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import Auth from "./components/Auth/Auth";
+import LoanOfficer from "./components/LoanOfficer";
 
 export default function Navbar() {
   return (
@@ -16,6 +17,8 @@ export default function Navbar() {
       <Switch>
         <Route path="/" exact component={Auth}></Route>
         <Route path="/admin" exact component={Admin}></Route>
+        <Route path="/loanofficer" exact component={LoanOfficer}></Route>
+
       </Switch>
     </BrowserRouter>
   );
