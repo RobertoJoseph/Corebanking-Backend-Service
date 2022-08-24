@@ -30,17 +30,15 @@ public class LoanService {
     private final FacilityRepository facilityRepository;
     private final LoanRepository loanRepository;
 
-    //TODO CHECK VALIDATIONS
     public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
             .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
 
         ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
         if (BAD_REQUEST != null) return BAD_REQUEST;
+        customer.get().setRequestedAmount(loanRequestBody.getAmount());
 
         return ResponseEntity.status(HttpStatus.OK).body("You can complete the steps to the next window PLEASE!");
-
-
     }
 
     private ResponseEntity<String> validateRequestedLoan(Optional<Customer> customer, LoanDTO loanDTO) {
@@ -50,15 +48,14 @@ public class LoanService {
         if (!customer.get().getCommissionPaidDate().plusMonths(3L).isAfter(LocalDate.now()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Expired");
 
-        if (customer.get().getRequestedAmount() < customer.get().getProduct().getProductType().getMin())
+        if (loanDTO.getAmount() < customer.get().getProduct().getProductType().getMin())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Requested amount is less than the min");
 
-        if (customer.get().getRequestedAmount() > customer.get().getProduct().getProductType().getMax())
+        if (loanDTO.getAmount() > customer.get().getProduct().getProductType().getMax())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Requested amount is more than than the max");
         if (customer.get().getProduct().getProductType().isGranted() == true) {
             if (customerRepository.findCustomerByNationalId(loanDTO.getGrantedNationalId()).isEmpty())
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You need a grantor for this product");
-            //It needs facility too
             if (facilityRepository.findById(loanDTO.getFacilityId()).isEmpty())
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You need a facility for this product");
 

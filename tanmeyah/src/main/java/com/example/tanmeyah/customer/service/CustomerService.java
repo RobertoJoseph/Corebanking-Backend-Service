@@ -61,7 +61,7 @@ public class CustomerService {
             customerDTO.getPhoneNumber(),
             customerDTO.getNationalId(),
             false
-            );
+        );
         branch.get().addCustomer(c);
         branchRepository.save(branch.get());
         //TODO JSON OBJECT CREATION

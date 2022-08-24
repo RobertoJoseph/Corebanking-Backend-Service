@@ -102,6 +102,7 @@ public class Customer {
     @JsonIgnore
     private Branch branch;
 
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(
@@ -126,9 +127,19 @@ public class Customer {
 
     )
     private List<Loan> loansOfGrantedCustomer = new LinkedList<>();
+
+    @Column(
+        name = "requested_column"
+    )
+
+
     private double requestedAmount;
+
+
+
     @Column(name = "commission_amount")
     private double commissionAmount;
+
 
     @Transactional
 //    public void addLoanToGrantedCustomer(Loan loan) {
