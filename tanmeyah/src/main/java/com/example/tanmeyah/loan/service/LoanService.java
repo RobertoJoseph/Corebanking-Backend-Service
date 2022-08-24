@@ -34,7 +34,7 @@ public class LoanService {
 
     public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
+            .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
 
         ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
         if (BAD_REQUEST != null) return BAD_REQUEST;
@@ -51,13 +51,16 @@ public class LoanService {
         customer.get().setNumberOfRepayments(loanRequestBody.getRepayments());
         customer.get().setLoanOfficerId(loanOfficer.get().getId());
 
-
         customerRepository.save(customer.get());
 
         return ResponseEntity.status(HttpStatus.OK).body("You can complete the steps to the next window PLEASE!");
     }
 
     private ResponseEntity<String> validateRequestedLoan(Optional<Customer> customer, LoanDTO loanDTO) {
+
+        if (!customer.get().getProduct().getProductType().name().equals(loanDTO.getProductType().name()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You have to choose the same product you requested before");
+
         if (!customer.get().isCommissionPaid())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You have to pay the commission");
 
@@ -84,27 +87,27 @@ public class LoanService {
             Optional<Customer> customerOptional = customerRepository.findCustomerByNationalId(confirmLoanDTO.getNationalId());
             customerOptional.orElseThrow(() -> new RuntimeException("Cannot find Customer"));
             Loan loan = new Loan(
-                    customerOptional.get().getProduct(),
-                    customerOptional.get(),
-                    customerOptional.get().getFacility(),
-                    customerOptional.get().getRequestedAmount(),
-                    customerOptional.get().getNumberOfRepayments()
+                customerOptional.get().getProduct(),
+                customerOptional.get(),
+                customerOptional.get().getFacility(),
+                customerOptional.get().getRequestedAmount(),
+                customerOptional.get().getNumberOfRepayments()
             );
             if (customerOptional.get().getProduct().getProductType().isGranted()) {
                 try {
                     Optional<Customer> customerByNationalId = customerRepository
-                            .findCustomerByNationalId(confirmLoanDTO.getGrantorNationalId());
-                    customerByNationalId.ifPresentOrElse(grantor->{
+                        .findCustomerByNationalId(confirmLoanDTO.getGrantorNationalId());
+                    customerByNationalId.ifPresentOrElse(grantor -> {
                         grantor.addLoanToGrantedCustomer(loan);
-                    },()->{
+                    }, () -> {
                         throw new RuntimeException("Enter Correct national id of grantor");
                     });
-                }catch (RuntimeException e){
+                } catch (RuntimeException e) {
                     return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
                 }
             }
-            Long id=customerOptional.get().getLoanOfficerId();
-            Optional<Employee> loanOptional= employeeRepository.findById(id);
+            Long id = customerOptional.get().getLoanOfficerId();
+            Optional<Employee> loanOptional = employeeRepository.findById(id);
             loanOptional.get().addLoanToLoanOfficer(loan);
             employeeRepository.save(loanOptional.get());
             return ResponseEntity.status(HttpStatus.OK).body(loan);
