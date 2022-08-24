@@ -18,7 +18,8 @@ public enum Role {
     ),
     USER(Sets.newHashSet()),
     TELLER(Sets.newHashSet()),
-    LOAN_OFFICER(Sets.newHashSet());
+    LOAN_OFFICER(Sets.newHashSet()),
+    MANAGER(Sets.newHashSet());
 
     public Set<ApplicationUserPermission> getPermissions() {
         return permissions;

@@ -15,6 +15,7 @@ import com.example.tanmeyah.product.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +43,14 @@ public class LoanService {
             facilityRepository.save(facility);
         }
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Employee> loanOfficer = employeeRepository.findEmployeeByEmail(email);
+
         customer.get().setRequestedAmount(loanRequestBody.getAmount());
         customer.get().setNumberOfRepayments(loanRequestBody.getRepayments());
+        customer.get().setLoanOfficerId(loanOfficer.get().getId());
+
+
         customerRepository.save(customer.get());
 
         return ResponseEntity.status(HttpStatus.OK).body("You can complete the steps to the next window PLEASE!");

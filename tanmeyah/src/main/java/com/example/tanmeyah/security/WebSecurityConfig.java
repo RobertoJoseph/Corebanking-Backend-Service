@@ -39,21 +39,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
 
             .csrf().disable().authorizeRequests()
-//            authorizeRequests()
-            .antMatchers("/tanmeyah/**").permitAll()
-            .antMatchers("/loan").permitAll()
-
-//            .antMatchers("/").permitAll()
-//            .antMatchers(HttpMethod.GET, "/tanmeyah/branch/**")
-//            .hasAuthority(BRANCH_READ.name())
+            .antMatchers(HttpMethod.GET, "tanmeyah/customer").permitAll()
+            .antMatchers(HttpMethod.POST, "/tanmeyah/customer")
+            .hasAnyRole(Role.LOAN_OFFICER.name(), Role.TELLER.name())
+            .antMatchers(HttpMethod.PUT, "/tanmeyah/customer").hasRole(Role.TELLER.name())
+            .antMatchers("/loan").hasAnyRole(Role.LOAN_OFFICER.name(), Role.MANAGER.name())
             .antMatchers("/tanmeyah/registration/**")
             .permitAll()
-
-//            .permitAll()
             .anyRequest().authenticated()
             .and()
-            .formLogin();
-//            .and().c();
+            .httpBasic();
     }
 
     @Override

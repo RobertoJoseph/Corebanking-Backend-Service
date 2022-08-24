@@ -56,6 +56,8 @@ public class Customer {
     )
     private String firstName;
 
+    private long loanOfficerId;
+
     @Column(
         name = "last_name",
         nullable = false
