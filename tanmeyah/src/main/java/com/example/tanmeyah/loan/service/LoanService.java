@@ -7,6 +7,7 @@ import com.example.tanmeyah.employee.repository.EmployeeRepository;
 import com.example.tanmeyah.exception.NotFoundException;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.facility.FacilityRepository;
+import com.example.tanmeyah.loan.ConfirmLoanDTO;
 import com.example.tanmeyah.loan.LoanRepository;
 import com.example.tanmeyah.loan.LoanDTO;
 import com.example.tanmeyah.loan.domain.Loan;
@@ -33,7 +34,7 @@ public class LoanService {
 
     public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-            .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
+                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
 
         ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
         if (BAD_REQUEST != null) return BAD_REQUEST;
@@ -75,6 +76,43 @@ public class LoanService {
 
 
         return null;
+    }
+
+    public ResponseEntity<?> confirmLoan(ConfirmLoanDTO confirmLoanDTO) {
+
+        try {
+            Optional<Customer> customerOptional = customerRepository.findCustomerByNationalId(confirmLoanDTO.getNationalId());
+            customerOptional.orElseThrow(() -> new RuntimeException("Cannot find Customer"));
+            Loan loan = new Loan(
+                    customerOptional.get().getProduct(),
+                    customerOptional.get(),
+                    customerOptional.get().getFacility(),
+                    customerOptional.get().getRequestedAmount(),
+                    customerOptional.get().getNumberOfRepayments()
+            );
+            if (customerOptional.get().getProduct().getProductType().isGranted()) {
+                try {
+                    Optional<Customer> customerByNationalId = customerRepository
+                            .findCustomerByNationalId(confirmLoanDTO.getGrantorNationalId());
+                    customerByNationalId.ifPresentOrElse(grantor->{
+                        grantor.addLoanToGrantedCustomer(loan);
+                    },()->{
+                        throw new RuntimeException("Enter Correct national id of grantor");
+                    });
+                }catch (RuntimeException e){
+                    return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
+                }
+            }
+            Long id=customerOptional.get().getLoanOfficerId();
+            Optional<Employee> loanOptional= employeeRepository.findById(id);
+            loanOptional.get().addLoanToLoanOfficer(loan);
+            employeeRepository.save(loanOptional.get());
+            return ResponseEntity.status(HttpStatus.OK).body(loan);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
+        }
+
+
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.tanmeyah.loan.controller;
 
 import com.example.tanmeyah.customer.service.CustomerService;
+import com.example.tanmeyah.loan.ConfirmLoanDTO;
 import com.example.tanmeyah.loan.LoanDTO;
 import com.example.tanmeyah.loan.service.LoanService;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,10 @@ public class LoanController {
     public ResponseEntity<?> addLoan(@RequestBody LoanDTO loanRequestBody) {
         return loanService.addLoan(loanRequestBody);
     }
-
+@PostMapping("confirm")
+public  ResponseEntity<?> confirmLoan(@RequestBody ConfirmLoanDTO confirmLoanDTO){
+     return    loanService.confirmLoan(confirmLoanDTO);
+}
     @GetMapping
     public ResponseEntity<?> getCustomer(@RequestBody String nationalId) {
         return customerService.getCustomerByNationalId(nationalId);

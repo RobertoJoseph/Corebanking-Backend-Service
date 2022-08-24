@@ -16,10 +16,10 @@ public enum Role {
             BRANCH_READ, BRANCH_WRITE
         )
     ),
-    USER(Sets.newHashSet()),
     TELLER(Sets.newHashSet()),
     LOAN_OFFICER(Sets.newHashSet()),
-    MANAGER(Sets.newHashSet());
+    MANAGER(Sets.newHashSet()),
+    REVISOR(Sets.newHashSet());
 
     public Set<ApplicationUserPermission> getPermissions() {
         return permissions;
