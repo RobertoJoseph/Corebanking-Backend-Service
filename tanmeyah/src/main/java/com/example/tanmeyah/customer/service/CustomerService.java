@@ -42,8 +42,11 @@ public class CustomerService {
 //    }
     public ResponseEntity<?> getCustomerByNationalId(String nationalId) {
         Optional<Customer> customer = customerRepository.findCustomerByNationalId(nationalId);
-        if (customer.get() == null)
-            return ResponseEntity.status(OK).body("Cannot find this customer");
+       try{
+           customer.orElseThrow(()->new RuntimeException("Cannot find Customer"));
+       }catch(RuntimeException e){
+           return ResponseEntity.status(OK).body(e.getMessage());
+       }
         CustomerDTO customerDTO = mapper.map(customer.get(), CustomerDTO.class);
         return ResponseEntity.status(OK).body(customerDTO);
     }
