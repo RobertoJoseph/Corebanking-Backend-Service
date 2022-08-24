@@ -41,7 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .csrf().disable().authorizeRequests()
 //            authorizeRequests()
             .antMatchers("/tanmeyah/**").permitAll()
-
+            .antMatchers("/loan").permitAll()
 
 //            .antMatchers("/").permitAll()
 //            .antMatchers(HttpMethod.GET, "/tanmeyah/branch/**")

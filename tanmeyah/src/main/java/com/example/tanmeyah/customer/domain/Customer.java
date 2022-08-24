@@ -102,6 +102,8 @@ public class Customer {
     @JsonIgnore
     private Branch branch;
 
+    private int numberOfRepayments;
+
 
     @JsonIgnore
     @ManyToOne
@@ -134,7 +136,6 @@ public class Customer {
 
 
     private double requestedAmount;
-
 
 
     @Column(name = "commission_amount")
