@@ -30,7 +30,8 @@ public class Employee implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getGrantedAuthorities();
     }
-@JsonIgnore
+
+    @JsonIgnore
     @Override
     public String getUsername() {
         return email;
@@ -135,6 +136,7 @@ public class Employee implements UserDetails {
     public void addLoanToLoanOfficer(Loan loan) {
         if (!loansOfLoanOfficer.contains(loan)) {
             loansOfLoanOfficer.add(loan);
+//            loan.setBranchId(this.getBranch().getId());
             loan.setLoanOfficer(this);
         }
     }

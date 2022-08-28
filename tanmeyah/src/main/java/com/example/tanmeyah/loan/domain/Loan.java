@@ -21,6 +21,7 @@ import javax.persistence.*;
 @Setter
 public class Loan {
     public Loan() {
+
     }
 
     public Loan(Product product, Customer customer,
@@ -31,7 +32,7 @@ public class Loan {
         this.facility = facility;
         this.amount = amount;
         this.numberOfRepayments = numberOfRepayments;
-        this.status=status;
+        this.status = status;
     }
 
     @EmbeddedId
@@ -92,6 +93,7 @@ public class Loan {
         name = "number_of_repayments"
     )
     private int numberOfRepayments;
+
 
     @Enumerated(EnumType.STRING)
     private Status status;

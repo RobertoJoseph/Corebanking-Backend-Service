@@ -41,7 +41,7 @@ public class LoanService {
 
     public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
+            .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
 
         ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
         if (BAD_REQUEST != null) return BAD_REQUEST;
@@ -56,18 +56,18 @@ public class LoanService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Employee> loanOfficer = employeeRepository.findEmployeeByEmail(email);
         Loan loan = new Loan(
-                customer.get().getProduct(),
-                customer.get(),
-                facility,
-                loanRequestBody.getAmount(),
-                loanRequestBody.getRepayments(),
-                Status.ONE
+            customer.get().getProduct(),
+            customer.get(),
+            facility,
+            loanRequestBody.getAmount(),
+            loanRequestBody.getRepayments(),
+            Status.ONE
         );
 
         if (loanRequestBody.getProductType().isGranted())
             customer.get().setGrantorNationalId(loanRequestBody.getGrantorNationalId());
         customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-                        .get().addLoanToGrantedCustomer(loan);
+            .get().addLoanToGrantedCustomer(loan);
         loanOfficer.get().addLoanToLoanOfficer(loan);
         employeeRepository.save(loanOfficer.get());
 
@@ -141,27 +141,49 @@ public class LoanService {
         loans = loanRepository.findAll().stream().filter(loan -> loan.getStatus().equals(Status.ONE)).collect(Collectors.toList());
         return ResponseEntity.status(OK).body(loans);
     }
-    public ResponseEntity<?> confirmLoanRevision(ConfirmLoanDTO confirmLoanDTO){
-        LoanId loanId= new LoanId();
-        loanId.setCustomerId(confirmLoanDTO.getCustomerId());
-        loanId.setProductId(confirmLoanDTO.getProductId());
-        Optional<Loan> loanOptional = loanRepository.findLoanByLoanId(loanId);
-        if(!loanOptional.isPresent())
+
+    public ResponseEntity<?> confirmLoanRevision(ConfirmLoanDTO confirmLoanDTO) {
+        Optional<Loan> loanOptional = findLoan(confirmLoanDTO);
+        if (!loanOptional.isPresent())
             return ResponseEntity.status(OK).body("Cannot find Loan");
 
         loanOptional.get().setStatus(Status.TWO);
         return ResponseEntity.status(OK).body("Loan Revised Proceed to manager");
     }
-    public ResponseEntity<?> confirmLoan(ConfirmLoanDTO confirmLoanDTO){
-        LoanId loanId= new LoanId();
-        loanId.setCustomerId(confirmLoanDTO.getCustomerId());
-        loanId.setProductId(confirmLoanDTO.getProductId());
-        Optional<Loan> loanOptional = loanRepository.findLoanByLoanId(loanId);
-        if(!loanOptional.isPresent())
+
+    public ResponseEntity<?> confirmLoan(ConfirmLoanDTO confirmLoanDTO) {
+        Optional<Loan> loanOptional = findLoan(confirmLoanDTO);
+        if (!loanOptional.isPresent())
             return ResponseEntity.status(OK).body("Cannot find Loan");
 
         loanOptional.get().setStatus(Status.THREE);
         return ResponseEntity.status(OK).body("Loan Confirmed");
     }
+
+    private Optional<Loan> findLoan(ConfirmLoanDTO confirmLoanDTO) {
+        LoanId loanId = new LoanId();
+        loanId.setCustomerId(confirmLoanDTO.getCustomerId());
+        loanId.setProductId(confirmLoanDTO.getProductId());
+        Optional<Loan> loanOptional = loanRepository.findLoanByLoanId(loanId);
+        return loanOptional;
+    }
+
+    public ResponseEntity<?> viewLoansOfBranch() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Employee> manager = employeeRepository.findEmployeeByEmail(email);
+        List<Employee> loanOfficers = manager.get().getBranch().getEmployeeList().stream()
+            .filter(employee -> employee.getRole().name().equals("LOAN_OFFICER"))
+            .collect(Collectors.toList());
+
+        List<Loan> loans = new ArrayList<>();
+        for (Employee e : loanOfficers) {
+            for (Loan l : e.getLoansOfLoanOfficer()) {
+                if (l.getStatus().name().equals("TWO"))
+                    loans.add(l);
+            }
+        }
+        return ResponseEntity.status(OK).body(loans);
+    }
+
 }
 

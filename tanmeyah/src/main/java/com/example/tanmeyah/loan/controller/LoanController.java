@@ -19,20 +19,29 @@ public class LoanController {
     public ResponseEntity<?> addLoan(@RequestBody LoanDTO loanRequestBody) {
         return loanService.addLoan(loanRequestBody);
     }
-@PutMapping("confirm")
-public  ResponseEntity<?> confirmLoan(@RequestBody ConfirmLoanDTO confirmLoanDTO){
-     return loanService.confirmLoan(confirmLoanDTO);
-}
+
+    @PutMapping("confirm")
+    public ResponseEntity<?> confirmLoan(@RequestBody ConfirmLoanDTO confirmLoanDTO) {
+        return loanService.confirmLoan(confirmLoanDTO);
+    }
+
     @GetMapping
     public ResponseEntity<?> getCustomer(@RequestBody String nationalId) {
         return customerService.getCustomerByNationalId(nationalId);
     }
+
     @GetMapping("view")
-    public ResponseEntity<?> viewActiveLoans(){
+    public ResponseEntity<?> viewActiveLoans() {
         return loanService.viewActiveLoans();
     }
+
     @PutMapping("revise")
-    public ResponseEntity<?> confirmLoanRevision(@RequestBody ConfirmLoanDTO confirmLoanDTO){
+    public ResponseEntity<?> confirmLoanRevision(@RequestBody ConfirmLoanDTO confirmLoanDTO) {
         return loanService.confirmLoanRevision(confirmLoanDTO);
+    }
+
+    @GetMapping("loansOfBranch")
+    public ResponseEntity<?> viewLoansOfBranch() {
+        return loanService.viewLoansOfBranch();
     }
 }
