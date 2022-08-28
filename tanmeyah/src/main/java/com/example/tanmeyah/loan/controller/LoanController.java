@@ -31,4 +31,8 @@ public class LoanController {
     public ResponseEntity<?> viewActiveLoans(){
         return loanService.viewActiveLoans();
     }
+    @PutMapping("revise")
+    public ResponseEntity<?> confirmLoanRevision(@RequestBody ConfirmLoanDTO confirmLoanDTO){
+        return loanService.confirmLoanRevision(confirmLoanDTO);
+    }
 }

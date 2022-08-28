@@ -6,6 +6,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class ConfirmLoanDTO {
-    private String nationalId;
-    private String grantorNationalId;
+    private Long productId;
+    private Long customerId;
 }

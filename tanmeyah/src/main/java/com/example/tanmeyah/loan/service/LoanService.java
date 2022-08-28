@@ -12,6 +12,7 @@ import com.example.tanmeyah.loan.LoanRepository;
 import com.example.tanmeyah.loan.LoanDTO;
 import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.loan.domain.Loan;
+import com.example.tanmeyah.loan.domain.LoanId;
 import com.example.tanmeyah.product.Product;
 import com.example.tanmeyah.product.ProductRepository;
 import lombok.AllArgsConstructor;
@@ -139,6 +140,17 @@ public class LoanService {
         List<Loan> loans = new ArrayList<>();
         loans = loanRepository.findAll().stream().filter(loan -> loan.getStatus().equals(Status.ONE)).collect(Collectors.toList());
         return ResponseEntity.status(OK).body(loans);
+    }
+    public ResponseEntity<?> confirmLoanRevision(ConfirmLoanDTO confirmLoanDTO){
+        LoanId loanId= new LoanId();
+        loanId.setCustomerId(confirmLoanDTO.getCustomerId());
+        loanId.setProductId(confirmLoanDTO.getProductId());
+        Optional<Loan> loanOptional = loanRepository.findLoanByLoanId(loanId);
+        if(!loanOptional.isPresent())
+            return ResponseEntity.status(OK).body("Cannot find Loan");
+
+        loanOptional.get().setStatus(Status.TWO);
+        return ResponseEntity.status(OK).body("Loan Revised Proceed to manager");
     }
 }
 
