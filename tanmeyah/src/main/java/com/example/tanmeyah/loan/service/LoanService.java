@@ -152,5 +152,16 @@ public class LoanService {
         loanOptional.get().setStatus(Status.TWO);
         return ResponseEntity.status(OK).body("Loan Revised Proceed to manager");
     }
+    public ResponseEntity<?> confirmLoan(ConfirmLoanDTO confirmLoanDTO){
+        LoanId loanId= new LoanId();
+        loanId.setCustomerId(confirmLoanDTO.getCustomerId());
+        loanId.setProductId(confirmLoanDTO.getProductId());
+        Optional<Loan> loanOptional = loanRepository.findLoanByLoanId(loanId);
+        if(!loanOptional.isPresent())
+            return ResponseEntity.status(OK).body("Cannot find Loan");
+
+        loanOptional.get().setStatus(Status.THREE);
+        return ResponseEntity.status(OK).body("Loan Confirmed");
+    }
 }
 

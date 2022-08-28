@@ -19,10 +19,10 @@ public class LoanController {
     public ResponseEntity<?> addLoan(@RequestBody LoanDTO loanRequestBody) {
         return loanService.addLoan(loanRequestBody);
     }
-//@PostMapping("confirm")
-//public  ResponseEntity<?> confirmLoan(@RequestBody String nationalId){
-//     return    loanService.confirmLoan(nationalId);
-//}
+@PutMapping("confirm")
+public  ResponseEntity<?> confirmLoan(@RequestBody ConfirmLoanDTO confirmLoanDTO){
+     return loanService.confirmLoan(confirmLoanDTO);
+}
     @GetMapping
     public ResponseEntity<?> getCustomer(@RequestBody String nationalId) {
         return customerService.getCustomerByNationalId(nationalId);
