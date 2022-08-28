@@ -33,13 +33,11 @@ public class BranchController {
             branchUpdate.getBranchAddress(),
             branchUpdate.getBranchId());
     }
-
     @DeleteMapping(path = "{branchId}")
     public ResponseEntity<?>
     deleteBranch(@PathVariable("branchId") Long branchId) {
         return branchService.deleteBranch(branchId);
     }
-
     @PutMapping(path = "{branchId}")
     public ResponseEntity<?> addEmployeesToBranch(
         @PathVariable("branchId") Long branchId,

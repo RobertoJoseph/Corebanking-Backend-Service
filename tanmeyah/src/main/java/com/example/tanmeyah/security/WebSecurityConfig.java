@@ -38,17 +38,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
 
-                .csrf().disable().authorizeRequests()
-                .antMatchers(HttpMethod.GET, "tanmeyah/customer").permitAll()
-                .antMatchers(HttpMethod.POST, "/tanmeyah/customer")
-                .hasAnyRole(Role.LOAN_OFFICER.name(), Role.TELLER.name())
-                .antMatchers(HttpMethod.PUT, "/tanmeyah/customer").hasRole(Role.TELLER.name())
-                .antMatchers("loan/confirm").hasRole(Role.MANAGER.name())
-                .antMatchers("/tanmeyah/registration/**")
-                .permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic();
+            .csrf().disable().authorizeRequests()
+            .antMatchers("/tanmeyah/branch/**").hasRole(Role.ADMIN.name())
+            .antMatchers(HttpMethod.GET, "tanmeyah/customer").permitAll()
+            .antMatchers(HttpMethod.POST, "/tanmeyah/customer")
+            .hasAnyRole(Role.LOAN_OFFICER.name(), Role.TELLER.name())
+            .antMatchers(HttpMethod.PUT, "/tanmeyah/customer").hasRole(Role.TELLER.name())
+            .antMatchers("loan/confirm").hasRole(Role.MANAGER.name())
+            .antMatchers("/tanmeyah/registration/**")
+            .permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .httpBasic();
     }
 
     @Override
