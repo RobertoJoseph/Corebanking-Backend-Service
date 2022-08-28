@@ -148,6 +148,7 @@ public class LoanService {
             return ResponseEntity.status(OK).body("Cannot find Loan");
 
         loanOptional.get().setStatus(Status.TWO);
+        loanRepository.save(loanOptional.get());
         return ResponseEntity.status(OK).body("Loan Revised Proceed to manager");
     }
 
@@ -157,6 +158,7 @@ public class LoanService {
             return ResponseEntity.status(OK).body("Cannot find Loan");
 
         loanOptional.get().setStatus(Status.THREE);
+        loanRepository.save(loanOptional.get());
         return ResponseEntity.status(OK).body("Loan Confirmed");
     }
 
