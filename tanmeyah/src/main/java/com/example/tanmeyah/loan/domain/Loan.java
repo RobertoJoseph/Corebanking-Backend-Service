@@ -3,6 +3,7 @@ package com.example.tanmeyah.loan.domain;
 import com.example.tanmeyah.customer.domain.Customer;
 import com.example.tanmeyah.employee.domain.Employee;
 import com.example.tanmeyah.facility.Facility;
+import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.product.Product;
 import lombok.Data;
 import lombok.Getter;
@@ -22,12 +23,15 @@ public class Loan {
     public Loan() {
     }
 
-    public Loan(Product product, Customer customer, Facility facility, double amount, int numberOfRepayments) {
+    public Loan(Product product, Customer customer,
+                Facility facility, double amount,
+                int numberOfRepayments, Status status) {
         this.product = product;
         this.customer = customer;
         this.facility = facility;
         this.amount = amount;
         this.numberOfRepayments = numberOfRepayments;
+        this.status=status;
     }
 
     @EmbeddedId
@@ -89,10 +93,11 @@ public class Loan {
     )
     private int numberOfRepayments;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     public void addProduct(Product product) {
         setProduct(product);
-
     }
 
 

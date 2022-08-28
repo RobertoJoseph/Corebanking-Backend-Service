@@ -56,8 +56,6 @@ public class Customer {
     )
     private String firstName;
 
-    private long loanOfficerId;
-
     @Column(
         name = "last_name",
         nullable = false
@@ -104,7 +102,6 @@ public class Customer {
     @JsonIgnore
     private Branch branch;
 
-    private int numberOfRepayments;
 
 
     @JsonIgnore
@@ -137,8 +134,7 @@ public class Customer {
     )
 
 
-    private double requestedAmount;
-
+private String grantorNationalId;
 
     @Column(name = "commission_amount")
     private double commissionAmount;

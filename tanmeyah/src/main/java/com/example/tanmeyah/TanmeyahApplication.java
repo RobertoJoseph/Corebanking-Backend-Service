@@ -8,6 +8,8 @@ import com.example.tanmeyah.employee.domain.Employee;
 import com.example.tanmeyah.employee.repository.EmployeeRepository;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.facility.FacilityRepository;
+import com.example.tanmeyah.loan.LoanRepository;
+import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.loan.domain.Loan;
 import com.example.tanmeyah.product.Product;
 import com.example.tanmeyah.product.ProductType;
@@ -43,12 +45,11 @@ public class TanmeyahApplication {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner() {
+    CommandLineRunner commandLineRunner(LoanRepository loanRepository) {
         return args -> {
             System.out.println("Iam here down to babe");
             Branch branch = new Branch("Tanmeyah", "Maaadi");
             branchRepository.save(branch);
-
         };
     }
 

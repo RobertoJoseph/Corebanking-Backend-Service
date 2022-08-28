@@ -43,7 +43,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/tanmeyah/customer")
                 .hasAnyRole(Role.LOAN_OFFICER.name(), Role.TELLER.name())
                 .antMatchers(HttpMethod.PUT, "/tanmeyah/customer").hasRole(Role.TELLER.name())
-                .antMatchers("/loan").hasAnyRole(Role.LOAN_OFFICER.name(), Role.MANAGER.name())
                 .antMatchers("loan/confirm").hasRole(Role.MANAGER.name())
                 .antMatchers("/tanmeyah/registration/**")
                 .permitAll()

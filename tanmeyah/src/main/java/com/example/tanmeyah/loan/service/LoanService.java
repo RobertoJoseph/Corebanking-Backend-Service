@@ -10,6 +10,7 @@ import com.example.tanmeyah.facility.FacilityRepository;
 import com.example.tanmeyah.loan.ConfirmLoanDTO;
 import com.example.tanmeyah.loan.LoanRepository;
 import com.example.tanmeyah.loan.LoanDTO;
+import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.loan.domain.Loan;
 import com.example.tanmeyah.product.Product;
 import com.example.tanmeyah.product.ProductRepository;
@@ -21,7 +22,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @Service
 @AllArgsConstructor
@@ -34,26 +40,37 @@ public class LoanService {
 
     public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-            .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
+                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
 
         ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
         if (BAD_REQUEST != null) return BAD_REQUEST;
         //TODO if he has facility, okay, if not make a facilty for him
+        Facility facility = null;
         if (!facilityRepository.findFacilityByFacilityName(loanRequestBody.getFacilityName()).isPresent()) {
-            Facility facility = new Facility(loanRequestBody.getFacilityName(), customer.get());
-            facilityRepository.save(facility);
+            facility = new Facility(loanRequestBody.getFacilityName(), customer.get());
+        } else {
+            facility = facilityRepository.findFacilityByFacilityName(loanRequestBody.getFacilityName()).get();
         }
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Employee> loanOfficer = employeeRepository.findEmployeeByEmail(email);
+        Loan loan = new Loan(
+                customer.get().getProduct(),
+                customer.get(),
+                facility,
+                loanRequestBody.getAmount(),
+                loanRequestBody.getRepayments(),
+                Status.ONE
+        );
 
-        customer.get().setRequestedAmount(loanRequestBody.getAmount());
-        customer.get().setNumberOfRepayments(loanRequestBody.getRepayments());
-        customer.get().setLoanOfficerId(loanOfficer.get().getId());
+        if (loanRequestBody.getProductType().isGranted())
+            customer.get().setGrantorNationalId(loanRequestBody.getGrantorNationalId());
+        customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
+                        .get().addLoanToGrantedCustomer(loan);
+        loanOfficer.get().addLoanToLoanOfficer(loan);
+        employeeRepository.save(loanOfficer.get());
 
-        customerRepository.save(customer.get());
-
-        return ResponseEntity.status(HttpStatus.OK).body("You can complete the steps to the next window PLEASE!");
+        return ResponseEntity.status(OK).body("You can complete the steps to the next window PLEASE!");
     }
 
     private ResponseEntity<String> validateRequestedLoan(Optional<Customer> customer, LoanDTO loanDTO) {
@@ -81,41 +98,47 @@ public class LoanService {
         return null;
     }
 
-    public ResponseEntity<?> confirmLoan(ConfirmLoanDTO confirmLoanDTO) {
-
-        try {
-            Optional<Customer> customerOptional = customerRepository.findCustomerByNationalId(confirmLoanDTO.getNationalId());
-            customerOptional.orElseThrow(() -> new RuntimeException("Cannot find Customer"));
-            Loan loan = new Loan(
-                customerOptional.get().getProduct(),
-                customerOptional.get(),
-                customerOptional.get().getFacility(),
-                customerOptional.get().getRequestedAmount(),
-                customerOptional.get().getNumberOfRepayments()
-            );
-            if (customerOptional.get().getProduct().getProductType().isGranted()) {
-                try {
-                    Optional<Customer> customerByNationalId = customerRepository
-                        .findCustomerByNationalId(confirmLoanDTO.getGrantorNationalId());
-                    customerByNationalId.ifPresentOrElse(grantor -> {
-                        grantor.addLoanToGrantedCustomer(loan);
-                    }, () -> {
-                        throw new RuntimeException("Enter Correct national id of grantor");
-                    });
-                } catch (RuntimeException e) {
-                    return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
-                }
-            }
-            Long id = customerOptional.get().getLoanOfficerId();
-            Optional<Employee> loanOptional = employeeRepository.findById(id);
-            loanOptional.get().addLoanToLoanOfficer(loan);
-            employeeRepository.save(loanOptional.get());
-            return ResponseEntity.status(HttpStatus.OK).body(loan);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
-        }
-
-
+    //    public ResponseEntity<?> confirmLoan(String nationalId) {
+//
+//        try {
+//            Optional<Customer> customerOptional = customerRepository.findCustomerByNationalId(nationalId);
+//            customerOptional.orElseThrow(() -> new RuntimeException("Cannot find Customer"));
+//            Loan loan = new Loan(
+//                customerOptional.get().getProduct(),
+//                customerOptional.get(),
+//                customerOptional.get().getFacility(),
+//                customerOptional.get().getRequestedAmount(),
+//                customerOptional.get().getNumberOfRepayments(),
+//                    Status.ONE
+//            );
+//            if (customerOptional.get().getProduct().getProductType().isGranted()) {
+//                try {
+//                    Optional<Customer> customerByNationalId = customerRepository
+//                        .findCustomerByNationalId(customerOptional.get().getGrantorNationalId());
+//                    customerByNationalId.ifPresentOrElse(grantor -> {
+//                        grantor.addLoanToGrantedCustomer(loan);
+//                    }, () -> {
+//                        throw new RuntimeException("Enter Correct national id of grantor");
+//                    });
+//                } catch (RuntimeException e) {
+//                    return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
+//                }
+//            }
+//            Long id = customerOptional.get().getLoanOfficerId();
+//            Optional<Employee> loanOptional = employeeRepository.findById(id);
+//            loanOptional.get().addLoanToLoanOfficer(loan);
+//            employeeRepository.save(loanOptional.get());
+//            return ResponseEntity.status(HttpStatus.OK).body(loan);
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.OK).body(e.getMessage());
+//        }
+//
+//
+//    }
+    public ResponseEntity<?> viewActiveLoans() {
+        List<Loan> loans = new ArrayList<>();
+        loans = loanRepository.findAll().stream().filter(loan -> loan.getStatus().equals(Status.ONE)).collect(Collectors.toList());
+        return ResponseEntity.status(OK).body(loans);
     }
 }
 
