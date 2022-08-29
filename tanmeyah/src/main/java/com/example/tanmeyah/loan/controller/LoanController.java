@@ -43,4 +43,9 @@ public class LoanController {
     public ResponseEntity<?> viewLoansOfBranch() {
         return loanService.viewLoansOfBranch();
     }
+
+    @PutMapping("cash")
+    public ResponseEntity<?> cashLoan(@RequestBody Long loanId){
+     return  loanService.cashLoan(loanId);
+    }
 }

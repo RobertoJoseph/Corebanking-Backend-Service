@@ -48,6 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("loan/revise").hasRole(Role.REVISOR.name())
                 .antMatchers("loan/view").hasRole(Role.REVISOR.name())
                 .antMatchers("/loan").hasRole(Role.LOAN_OFFICER.name())
+                .antMatchers("loan/cash").hasRole(Role.ADMIN.name())
                 .antMatchers("/tanmeyah/registration/**")
                 .permitAll()
                 .anyRequest().authenticated()

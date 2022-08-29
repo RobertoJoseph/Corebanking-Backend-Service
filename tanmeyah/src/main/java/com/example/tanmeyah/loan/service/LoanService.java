@@ -13,13 +13,18 @@ import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.loan.domain.Loan;
 import com.example.tanmeyah.product.domain.Product;
 import com.example.tanmeyah.product.repository.ProductRepository;
+import com.example.tanmeyah.repaymentSchedule.domain.RepaymentSchedule;
+import com.example.tanmeyah.repaymentSchedule.dto.RepaymentScheduleDTO;
 import lombok.AllArgsConstructor;
+import org.checkerframework.checker.nullness.Opt;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +42,7 @@ public class LoanService {
     private final EmployeeRepository employeeRepository;
     private final FacilityRepository facilityRepository;
     private final LoanRepository loanRepository;
+    private final ModelMapper mapper;
 
     public ResponseEntity<?> addLoan(LoanDTO loanDTO) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanDTO.getCustomerNationalId())
@@ -188,6 +194,27 @@ public class LoanService {
         return ResponseEntity.status(OK).body(loans);
     }
 
+    public ResponseEntity<?> cashLoan(Long loanId) {
+        Optional<Loan> loanOptional = loanRepository.findById(loanId);
+        if(!loanOptional.isPresent())
+            return ResponseEntity.status(BAD_REQUEST).body("Enter a correct loan ID");
+        Loan loan= loanOptional.get();
+        if(!loan.getStatus().equals(Status.THREE))
+            return ResponseEntity.status(BAD_REQUEST).body("The loan has not been confirmed yet!");
+
+        RepaymentSchedule repaymentSchedule = new RepaymentSchedule(
+                loan.getAmount(),
+                loan.getAmount()/loan.getNumberOfRepayments(),
+                LocalDate.now(),
+                LocalDate.now().plusMonths(loan.getNumberOfRepayments()),
+                0,
+                loan.getNumberOfRepayments()
+        );
+        loan.addRepaymentSchedule(repaymentSchedule);
+        loanRepository.save(loan);
+        RepaymentScheduleDTO repaymentScheduleDTO = mapper.map(repaymentSchedule,RepaymentScheduleDTO.class);
+        return ResponseEntity.status(OK).body(repaymentScheduleDTO);
+    }
 }
 
 //facility id instead of facility Name

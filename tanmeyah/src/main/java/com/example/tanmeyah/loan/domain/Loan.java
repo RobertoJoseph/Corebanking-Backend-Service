@@ -5,16 +5,19 @@ import com.example.tanmeyah.employee.domain.Employee;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.product.domain.Product;
+import com.example.tanmeyah.repaymentSchedule.domain.RepaymentSchedule;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.util.Pair;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity(
-    name = "Loan"
+        name = "Loan"
 )
 @Table(
-    name = "loan"
+        name = "loan"
 )
 @Getter
 @Setter
@@ -51,54 +54,54 @@ public class Loan {
     private Long id;
     @OneToOne
     @JoinColumn(
-        name = "product_id",
-        foreignKey = @ForeignKey(
-            name = "loan_product_fk"
-        ),
+            name = "product_id",
+            foreignKey = @ForeignKey(
+                    name = "loan_product_fk"
+            ),
             referencedColumnName = "id"
     )
     private Product product;
 
     @OneToOne(
-        cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
     @JoinColumn(
-        name = "customer_id",
-        foreignKey = @ForeignKey(
-            name = "loan_customer_fk"
-        ),
+            name = "customer_id",
+            foreignKey = @ForeignKey(
+                    name = "loan_customer_fk"
+            ),
             referencedColumnName = "id"
     )
     private Customer customer;
 
     @OneToOne(
-        cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
     )
     @JoinColumn(
-        name = "facility_id"
+            name = "facility_id"
     )
     private Facility facility;
 
     @ManyToOne
     @JoinColumn(
-        name = "granted_customer_id",
-        referencedColumnName = "id"
+            name = "granted_customer_id",
+            referencedColumnName = "id"
     )
     private Customer grantedCustomer;
 
     @ManyToOne
     @JoinColumn(
-        name = "loan_officer_id"
+            name = "loan_officer_id"
     )
     private Employee loanOfficer;
 
     @Column(
-        name = "amount"
+            name = "amount"
     )
     private double amount;
 
     @Column(
-        name = "number_of_repayments"
+            name = "number_of_repayments"
     )
     private int numberOfRepayments;
 
@@ -106,9 +109,20 @@ public class Loan {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @OneToOne(mappedBy = "loan", cascade = CascadeType.ALL)
+    private RepaymentSchedule repaymentSchedule;
+
     public void addProduct(Product product) {
         setProduct(product);
     }
 
+    public void addRepaymentSchedule(RepaymentSchedule repaymentSchedule) {
+        for (int i = 1; i <numberOfRepayments ; i++) {
+            repaymentSchedule.getInstallment().add(Pair.of(LocalDate.now().plusMonths(i),false));
+        }
+        setRepaymentSchedule(repaymentSchedule);
+        repaymentSchedule.setLoan(this);
+
+    }
 
 }
