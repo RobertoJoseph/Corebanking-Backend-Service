@@ -1,10 +1,8 @@
 package com.example.tanmeyah.customer.requests;
 
-import com.example.tanmeyah.customer.domain.Customer;
-import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.loan.domain.Loan;
-import com.example.tanmeyah.product.Product;
-import com.example.tanmeyah.product.ProductType;
+import com.example.tanmeyah.product.domain.Product;
+import com.example.tanmeyah.product.constant.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

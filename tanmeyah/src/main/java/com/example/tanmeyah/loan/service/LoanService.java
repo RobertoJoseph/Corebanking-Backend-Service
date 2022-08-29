@@ -8,17 +8,15 @@ import com.example.tanmeyah.exception.NotFoundException;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.facility.FacilityRepository;
 import com.example.tanmeyah.loan.ConfirmLoanDTO;
-import com.example.tanmeyah.loan.LoanRepository;
+import com.example.tanmeyah.loan.repository.LoanRepository;
 import com.example.tanmeyah.loan.LoanDTO;
 import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.loan.domain.Loan;
 import com.example.tanmeyah.loan.domain.LoanId;
-import com.example.tanmeyah.product.Product;
-import com.example.tanmeyah.product.ProductRepository;
+import com.example.tanmeyah.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
 @Service
@@ -41,7 +40,7 @@ public class LoanService {
 
     public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-            .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
+                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
 
         ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
         if (BAD_REQUEST != null) return BAD_REQUEST;
@@ -56,18 +55,18 @@ public class LoanService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Employee> loanOfficer = employeeRepository.findEmployeeByEmail(email);
         Loan loan = new Loan(
-            customer.get().getProduct(),
-            customer.get(),
-            facility,
-            loanRequestBody.getAmount(),
-            loanRequestBody.getRepayments(),
-            Status.ONE
+                customer.get().getProduct(),
+                customer.get(),
+                facility,
+                loanRequestBody.getAmount(),
+                loanRequestBody.getRepayments(),
+                Status.ONE
         );
 
         if (loanRequestBody.getProductType().isGranted())
             customer.get().setGrantorNationalId(loanRequestBody.getGrantorNationalId());
         customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-            .get().addLoanToGrantedCustomer(loan);
+                .get().addLoanToGrantedCustomer(loan);
         loanOfficer.get().addLoanToLoanOfficer(loan);
         employeeRepository.save(loanOfficer.get());
 
@@ -75,7 +74,8 @@ public class LoanService {
     }
 
     private ResponseEntity<String> validateRequestedLoan(Optional<Customer> customer, LoanDTO loanDTO) {
-
+        if (customer.get().getProduct() == null)
+            return ResponseEntity.status(BAD_REQUEST).body("You must pay the commission");
         if (!customer.get().getProduct().getProductType().name().equals(loanDTO.getProductType().name()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You have to choose the same product you requested before");
 
@@ -174,8 +174,8 @@ public class LoanService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Employee> manager = employeeRepository.findEmployeeByEmail(email);
         List<Employee> loanOfficers = manager.get().getBranch().getEmployeeList().stream()
-            .filter(employee -> employee.getRole().name().equals("LOAN_OFFICER"))
-            .collect(Collectors.toList());
+                .filter(employee -> employee.getRole().name().equals("LOAN_OFFICER"))
+                .collect(Collectors.toList());
 
         List<Loan> loans = new ArrayList<>();
         for (Employee e : loanOfficers) {
@@ -189,3 +189,4 @@ public class LoanService {
 
 }
 
+//facility id instead of facility Name

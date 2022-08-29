@@ -1,7 +1,9 @@
-package com.example.tanmeyah.product;
+package com.example.tanmeyah.product.domain;
 
 import com.example.tanmeyah.customer.domain.Customer;
+import com.example.tanmeyah.product.constant.ProductType;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.LinkedList;
@@ -10,6 +12,7 @@ import java.util.List;
 @Entity(name = "Product")
 @Table(name = "product")
 @Getter
+@Setter
 public class Product {
 
     @Id
@@ -41,10 +44,34 @@ public class Product {
 
     )
     private List<Customer> customerList = new LinkedList<>();
+    @Column(name = "minimum")
+    private double minimum;
 
-    public Product(ProductType productType) {
+    @Column(name = "maximum")
+    private double maximum;
 
+    @Column(name = "is_granted")
+    private boolean isGranted;
+
+    @Column(name = "min_duration")
+    private int minDuration;
+
+    @Column(name = "max_duration")
+    private int maxDuration;
+
+    @Column(name = "commission")
+    private double commission;
+
+    public Product(ProductType productType,
+                   double minimum, double maximum, boolean isGranted,
+                   int minDuration, int maxDuration, double commission) {
         this.productType = productType;
+        this.minimum = minimum;
+        this.maximum = maximum;
+        this.isGranted = isGranted;
+        this.minDuration = minDuration;
+        this.maxDuration = maxDuration;
+        this.commission = commission;
     }
 
     public Product() {

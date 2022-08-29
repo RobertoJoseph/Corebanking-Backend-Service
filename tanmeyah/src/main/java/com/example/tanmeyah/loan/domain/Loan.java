@@ -4,8 +4,7 @@ import com.example.tanmeyah.customer.domain.Customer;
 import com.example.tanmeyah.employee.domain.Employee;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.loan.constant.Status;
-import com.example.tanmeyah.product.Product;
-import lombok.Data;
+import com.example.tanmeyah.product.domain.Product;
 import lombok.Getter;
 import lombok.Setter;
 

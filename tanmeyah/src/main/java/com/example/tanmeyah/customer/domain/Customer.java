@@ -3,7 +3,7 @@ package com.example.tanmeyah.customer.domain;
 import com.example.tanmeyah.branch.domain.Branch;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.loan.domain.Loan;
-import com.example.tanmeyah.product.Product;
+import com.example.tanmeyah.product.domain.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.example.tanmeyah.loan;
+package com.example.tanmeyah.loan.repository;
 
 import com.example.tanmeyah.loan.domain.Loan;
 import com.example.tanmeyah.loan.domain.LoanId;

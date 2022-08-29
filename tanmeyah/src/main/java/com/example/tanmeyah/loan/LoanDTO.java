@@ -1,6 +1,6 @@
 package com.example.tanmeyah.loan;
 
-import com.example.tanmeyah.product.ProductType;
+import com.example.tanmeyah.product.constant.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
