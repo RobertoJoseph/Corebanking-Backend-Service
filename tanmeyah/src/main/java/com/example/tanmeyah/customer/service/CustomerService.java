@@ -84,6 +84,8 @@ public class CustomerService {
                 .findCustomerByNationalId(customerDTO.getNationalId());
             if (customerOptional.get() == null)
                 return ResponseEntity.status(BAD_REQUEST).body("Enter a correct National ID");
+            if(customerOptional.get().isCommissionPaid())
+                return ResponseEntity.status(BAD_REQUEST).body("Already Paid Commission!");
             customerOptional.ifPresent(customer -> {
                 customer.setCommissionPaid(true);
                 customer.setCommissionAmount(customerDTO.getCommissionAmount());

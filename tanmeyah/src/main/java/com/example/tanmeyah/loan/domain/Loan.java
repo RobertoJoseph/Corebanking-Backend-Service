@@ -50,28 +50,24 @@ public class Loan {
     )
     private Long id;
     @OneToOne
-    @MapsId(
-        "productId"
-    )
     @JoinColumn(
         name = "product_id",
         foreignKey = @ForeignKey(
             name = "loan_product_fk"
-        )
+        ),
+            referencedColumnName = "id"
     )
     private Product product;
 
     @OneToOne(
         cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
-    @MapsId(
-        "customerId"
-    )
     @JoinColumn(
         name = "customer_id",
         foreignKey = @ForeignKey(
             name = "loan_customer_fk"
-        )
+        ),
+            referencedColumnName = "id"
     )
     private Customer customer;
 
