@@ -7,17 +7,17 @@ import com.example.tanmeyah.employee.repository.EmployeeRepository;
 import com.example.tanmeyah.exception.NotFoundException;
 import com.example.tanmeyah.facility.Facility;
 import com.example.tanmeyah.facility.FacilityRepository;
-import com.example.tanmeyah.loan.ConfirmLoanDTO;
 import com.example.tanmeyah.loan.repository.LoanRepository;
 import com.example.tanmeyah.loan.LoanDTO;
 import com.example.tanmeyah.loan.constant.Status;
 import com.example.tanmeyah.loan.domain.Loan;
-import com.example.tanmeyah.loan.domain.LoanId;
+import com.example.tanmeyah.product.domain.Product;
 import com.example.tanmeyah.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,18 +38,21 @@ public class LoanService {
     private final FacilityRepository facilityRepository;
     private final LoanRepository loanRepository;
 
-    public ResponseEntity<?> addLoan(LoanDTO loanRequestBody) {
-        Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
-                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanRequestBody.getCustomerNationalId()))));
+    public ResponseEntity<?> addLoan(LoanDTO loanDTO) {
+        Optional<Customer> customer = Optional.ofNullable(customerRepository.findCustomerByNationalId(loanDTO.getCustomerNationalId())
+                .orElseThrow(() -> new NotFoundException(String.format("Customer with %s id not found", loanDTO.getCustomerNationalId()))));
+        Optional<Product> productOptional = productRepository.findById(loanDTO.getProductId());
+        if(!productOptional.isPresent())
+            return ResponseEntity.status(BAD_REQUEST).body("Incorrect product ID!");
 
-        ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanRequestBody);
+        ResponseEntity<String> BAD_REQUEST = validateRequestedLoan(customer, loanDTO,productOptional.get());
         if (BAD_REQUEST != null) return BAD_REQUEST;
         //TODO if he has facility, okay, if not make a facilty for him
         Facility facility = null;
-        if (!facilityRepository.findFacilityByFacilityName(loanRequestBody.getFacilityName()).isPresent()) {
-            facility = new Facility(loanRequestBody.getFacilityName(), customer.get());
+        if (!facilityRepository.findFacilityByFacilityName(loanDTO.getFacilityName()).isPresent()) {
+            facility = new Facility(loanDTO.getFacilityName(), customer.get());
         } else {
-            facility = facilityRepository.findFacilityByFacilityName(loanRequestBody.getFacilityName()).get();
+            facility = facilityRepository.findFacilityByFacilityName(loanDTO.getFacilityName()).get();
         }
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -58,14 +61,14 @@ public class LoanService {
                 customer.get().getProduct(),
                 customer.get(),
                 facility,
-                loanRequestBody.getAmount(),
-                loanRequestBody.getRepayments(),
+                loanDTO.getAmount(),
+                loanDTO.getRepayments(),
                 Status.ONE
         );
 
-        if (loanRequestBody.getProductType().isGranted())
-            customer.get().setGrantorNationalId(loanRequestBody.getGrantorNationalId());
-        customerRepository.findCustomerByNationalId(loanRequestBody.getCustomerNationalId())
+        if (customer.get().getProduct().isGranted())
+            customer.get().setGrantorNationalId(loanDTO.getGrantorNationalId());
+        customerRepository.findCustomerByNationalId(loanDTO.getCustomerNationalId())
                 .get().addLoanToGrantedCustomer(loan);
         loanOfficer.get().addLoanToLoanOfficer(loan);
         employeeRepository.save(loanOfficer.get());
@@ -73,10 +76,10 @@ public class LoanService {
         return ResponseEntity.status(OK).body("You can complete the steps to the next window PLEASE!");
     }
 
-    private ResponseEntity<String> validateRequestedLoan(Optional<Customer> customer, LoanDTO loanDTO) {
+    private ResponseEntity<String> validateRequestedLoan(Optional<Customer> customer, LoanDTO loanDTO,Product product) {
         if (customer.get().getProduct() == null)
             return ResponseEntity.status(BAD_REQUEST).body("You must pay the commission");
-        if (!customer.get().getProduct().getProductType().name().equals(loanDTO.getProductType().name()))
+        if (!customer.get().getProduct().getProductType().name().equals(product.getProductType().name()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You have to choose the same product you requested before");
 
         if (!customer.get().isCommissionPaid())
@@ -85,12 +88,12 @@ public class LoanService {
         if (!customer.get().getCommissionPaidDate().plusMonths(3L).isAfter(LocalDate.now()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Expired");
 
-        if (loanDTO.getAmount() < loanDTO.getProductType().getMin())
+        if (loanDTO.getAmount() < product.getMinimum())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Requested amount is less than the min");
 
-        if (loanDTO.getAmount() > loanDTO.getProductType().getMax())
+        if (loanDTO.getAmount() > product.getMaximum())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Requested amount is more than than the max");
-        if (loanDTO.getProductType().isGranted() == true) {
+        if (product.isGranted() == true) {
             if (customerRepository.findCustomerByNationalId(loanDTO.getGrantorNationalId()).isEmpty())
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You need a grantor for this product");
         }
@@ -142,33 +145,26 @@ public class LoanService {
         return ResponseEntity.status(OK).body(loans);
     }
 
-    public ResponseEntity<?> confirmLoanRevision(ConfirmLoanDTO confirmLoanDTO) {
-        Optional<Loan> loanOptional = findLoan(confirmLoanDTO);
+    public ResponseEntity<?> confirmLoanRevision(Long loanId ) {
+        Optional<Loan> loanOptional = loanRepository.findById(loanId);
         if (!loanOptional.isPresent())
-            return ResponseEntity.status(OK).body("Cannot find Loan");
+            return ResponseEntity.status(BAD_REQUEST).body("Cannot find Loan");
 
         loanOptional.get().setStatus(Status.TWO);
         loanRepository.save(loanOptional.get());
         return ResponseEntity.status(OK).body("Loan Revised Proceed to manager");
     }
 
-    public ResponseEntity<?> confirmLoan(ConfirmLoanDTO confirmLoanDTO) {
-        Optional<Loan> loanOptional = findLoan(confirmLoanDTO);
+    public ResponseEntity<?> confirmLoan(Long loanId) {
+        Optional<Loan> loanOptional = loanRepository.findById(loanId);
         if (!loanOptional.isPresent())
-            return ResponseEntity.status(OK).body("Cannot find Loan");
+            return ResponseEntity.status(BAD_REQUEST).body("Cannot find Loan");
 
         loanOptional.get().setStatus(Status.THREE);
         loanRepository.save(loanOptional.get());
         return ResponseEntity.status(OK).body("Loan Confirmed");
     }
 
-    private Optional<Loan> findLoan(ConfirmLoanDTO confirmLoanDTO) {
-        LoanId loanId = new LoanId();
-        loanId.setCustomerId(confirmLoanDTO.getCustomerId());
-        loanId.setProductId(confirmLoanDTO.getProductId());
-        Optional<Loan> loanOptional = loanRepository.findLoanByLoanId(loanId);
-        return loanOptional;
-    }
 
     public ResponseEntity<?> viewLoansOfBranch() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

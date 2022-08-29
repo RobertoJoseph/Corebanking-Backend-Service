@@ -34,8 +34,21 @@ public class Loan {
         this.status = status;
     }
 
-    @EmbeddedId
-    LoanId loanId = new LoanId();
+    @Id
+    @SequenceGenerator(
+            name = "loan_sequence",
+            sequenceName = "loan_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "loan_sequence"
+    )
+    @Column(
+            name = "id",
+            updatable = false
+    )
+    private Long id;
     @OneToOne
     @MapsId(
         "productId"
@@ -72,14 +85,14 @@ public class Loan {
 
     @ManyToOne
     @JoinColumn(
-        name = "granted_customer",
+        name = "granted_customer_id",
         referencedColumnName = "id"
     )
     private Customer grantedCustomer;
 
     @ManyToOne
     @JoinColumn(
-        name = "loan_officer"
+        name = "loan_officer_id"
     )
     private Employee loanOfficer;
 

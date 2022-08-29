@@ -1,7 +1,6 @@
 package com.example.tanmeyah.loan.controller;
 
 import com.example.tanmeyah.customer.service.CustomerService;
-import com.example.tanmeyah.loan.ConfirmLoanDTO;
 import com.example.tanmeyah.loan.LoanDTO;
 import com.example.tanmeyah.loan.service.LoanService;
 import lombok.AllArgsConstructor;
@@ -21,8 +20,8 @@ public class LoanController {
     }
 
     @PutMapping("confirm")
-    public ResponseEntity<?> confirmLoan(@RequestBody ConfirmLoanDTO confirmLoanDTO) {
-        return loanService.confirmLoan(confirmLoanDTO);
+    public ResponseEntity<?> confirmLoan(@RequestBody Long loanId) {
+        return loanService.confirmLoan(loanId);
     }
 
     @GetMapping
@@ -36,8 +35,8 @@ public class LoanController {
     }
 
     @PutMapping("revise")
-    public ResponseEntity<?> confirmLoanRevision(@RequestBody ConfirmLoanDTO confirmLoanDTO) {
-        return loanService.confirmLoanRevision(confirmLoanDTO);
+    public ResponseEntity<?> confirmLoanRevision(@RequestBody Long loanId) {
+        return loanService.confirmLoanRevision(loanId);
     }
 
     @GetMapping("loansOfBranch")

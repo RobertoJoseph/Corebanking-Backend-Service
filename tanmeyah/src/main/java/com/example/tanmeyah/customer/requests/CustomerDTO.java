@@ -22,7 +22,7 @@ public class CustomerDTO {
     private String nationalId;
     private String facilityName;
     private Long branchId;
-    private Product product;
+    private Long productId;
     private Boolean isCommissionPaid;
     private LocalDate commissionPaidDate;
     private List<Loan> loansOfGrantedCustomer;

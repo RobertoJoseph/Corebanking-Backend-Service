@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
 @Service
@@ -73,12 +74,16 @@ public class CustomerService {
 ////        if(customerDTO.getCommissionAmount()==customerDTO.getProductType().get)
 //    }
     public ResponseEntity<?> addCommissionToCustomer(CustomerDTO customerDTO) {
-        if (customerDTO.getCommissionAmount() == customerDTO.getProductType().getCommission()) {
-            Product product = new Product(customerDTO.getProductType());
+        Optional<Product> productOptional = productRepository.findById(customerDTO.getProductId());
+        if(!productOptional.isPresent())
+            return ResponseEntity.status(BAD_REQUEST).body("Incorrect product id !");
+        Product product = productOptional.get();
+
+        if (customerDTO.getCommissionAmount() == product.getCommission()) {
             Optional<Customer> customerOptional = customerRepository
                 .findCustomerByNationalId(customerDTO.getNationalId());
             if (customerOptional.get() == null)
-                return ResponseEntity.status(OK).body("Enter a correct National ID");
+                return ResponseEntity.status(BAD_REQUEST).body("Enter a correct National ID");
             customerOptional.ifPresent(customer -> {
                 customer.setCommissionPaid(true);
                 customer.setCommissionAmount(customerDTO.getCommissionAmount());
@@ -90,7 +95,7 @@ public class CustomerService {
             CustomerDTO ret = mapper.map(customerOptional.get(), CustomerDTO.class);
             return ResponseEntity.status(OK).body(ret);
         } else {
-            return ResponseEntity.status(OK)
+            return ResponseEntity.status(BAD_REQUEST)
                 .body("Commission amount is not compatible with this product type");
         }
     }

@@ -9,7 +9,7 @@ import lombok.Getter;
 public class LoanDTO {
     private String customerNationalId;
     private String facilityName;
-    private ProductType productType;
+    private Long productId;
     private double amount;
     private int repayments;
     private String grantorNationalId;
